@@ -10,5 +10,8 @@ As a resource for the demo in:
 
 ```
 amplify init
+cd amplify/backend/function/src
+npm install
+cd ../../../..
 amplify push
 ```

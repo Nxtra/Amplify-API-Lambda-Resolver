@@ -2,6 +2,7 @@
 amplify/\#current-cloud-backend
 amplify/.config/local-*
 amplify/mock-data
+amplify/team-provider-info.json
 amplify/backend/amplify-meta.json
 amplify/backend/awscloudformation
 build/
@@ -13,3 +14,6 @@ amplifyconfiguration.json
 amplify-build-config.json
 amplify-gradle-config.json
 amplifytools.xcconfig
+
+
+.DS_Store

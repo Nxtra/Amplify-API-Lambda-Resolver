@@ -79,11 +79,15 @@
           ]
         },
         "Runtime": "nodejs12.x",
+        "MemorySize": 512,
         "Layers": [],
         "Timeout": "25",
         "Code": {
-          "S3Bucket": "amplify-amplifylambdaresolve-dev-234312-deployment",
-          "S3Key": "amplify-builds/editPostAndCommentss-6d36456b3948676a4e2b-build.zip"
+          "S3Bucket": "amplify-amplifylambdaresolve-dev-165727-deployment",
+          "S3Key": "amplify-builds/editPostAndCommentss-512b6a6b703739724972-build.zip"
+        },
+        "TracingConfig": {
+          "Mode": "Active"
         }
       }
     },
@@ -230,6 +234,36 @@
                   ]
                 }
               ]
+            }
+          ]
+        }
+      }
+    },
+    "XrayPolicy": {
+      "DependsOn": [
+        "LambdaExecutionRole"
+      ],
+      "Type": "AWS::IAM::Policy",
+      "Properties": {
+        "PolicyName": "amplify-lambda-xray-policy",
+        "Roles": [
+          {
+            "Ref": "LambdaExecutionRole"
+          }
+        ],
+        "PolicyDocument": {
+          "Version": "2012-10-17",
+          "Statement": [
+            {
+              "Effect": "Allow",
+              "Action": [
+                "xray:PutTraceSegments",
+                "xray:PutTelemetryRecords",
+                "xray:GetSamplingRules",
+                "xray:GetSamplingTargets",
+                "xray:GetSamplingStatisticSummaries"
+              ],
+              "Resource": "*"
             }
           ]
         }

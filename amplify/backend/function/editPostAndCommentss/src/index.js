@@ -1,4 +1,5 @@
-const AWS = require("aws-sdk");
+const AWSXRay = require("aws-xray-sdk-core");
+const AWS = AWSXRay.captureAWS(require("aws-sdk"));
 
 const docClient = new AWS.DynamoDB.DocumentClient();
 
@@ -39,6 +40,8 @@ async function deletePostAndComments(event) {
 
 async function removePost(postId) {
   const deletedPost = await deletePost(postId);
+  console.log("Deleted post is: ", deletedPost);
+  console.log("Deleted post with id: ", deletedPost.id);
   return deletedPost;
 }
 
@@ -79,43 +82,44 @@ async function deleteComments(comments) {
   let batchMultiplier = 1;
   while (quotient > 0) {
     for (let i = 0; i < seedData.length - 1; i += 25) {
-      docClient.batchWrite(
-        {
-          RequestItems: {
-            [COMMENTTABLE]: seedData.slice(i, 25 * batchMultiplier),
+      await docClient
+        .batchWrite(
+          {
+            RequestItems: {
+              [COMMENTTABLE]: seedData.slice(i, 25 * batchMultiplier),
+            },
           },
-        },
-        (err, data) => {
-          if (err) {
-            console.log(err);
-            console.log("something went wrong...");
-          } else {
-            console.log("yay...deleted!");
+          (err, data) => {
+            if (err) {
+              console.log(err);
+              console.log("something went wrong...");
+            }
           }
-        }
-      );
-      console.log({ quotient });
+        )
+        .promise();
       ++batchMultiplier;
       --quotient;
     }
   }
 
   /* Upload the remaining items (less than 25) */
-  docClient.batchWrite(
-    {
-      RequestItems: {
-        [COMMENTTABLE]: seedData.slice(seedData.length - remainder),
-      },
-    },
-    (err, data) => {
-      if (err) {
-        console.log(err);
-        console.log("something went wrong...");
-      } else {
-        console.log("yay...the remaining comments were deleted!");
-      }
-    }
-  );
+  if (remainder > 0) {
+    await docClient
+      .batchWrite(
+        {
+          RequestItems: {
+            [COMMENTTABLE]: seedData.slice(seedData.length - remainder),
+          },
+        },
+        (err, data) => {
+          if (err) {
+            console.log(err);
+            console.log("something went wrong...");
+          }
+        }
+      )
+      .promise();
+  }
 }
 
 async function deletePost(id) {
